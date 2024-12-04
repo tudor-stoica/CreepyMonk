@@ -121,7 +121,7 @@ class AdventureGame(QMainWindow):
             "Just at that moment Professor Pietro Baglioni looked forth from the window, and called loudly, in a tone of triumph mixed with horror, to the thunderstricken man of science, "
             "“Rappaccini! Rappaccini! and is this the upshot of your experiment!”",
 
-            "- The above was text from Nathaniel Hawthornes \"Rappacini's Daughter\""
+            "- The above was text from Nathaniel Hawthornes \"Rappacini's Daughtere\""
 
             "The garden, rich with its strange and terrible beauty, seemed to hold its breath. The vibrant hues of its blossoms—so like flames, jewels, and the very blood of life—were dimmed beneath "
             "a shadow that had fallen upon this unnatural paradise. The marble fountain murmured faintly, its voice subdued, while the vines that clung to statues and crept along the paths appeared "
