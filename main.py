@@ -154,7 +154,7 @@ class AdventureGame(QMainWindow):
 
         # Display the first paragraph and prompt
         self.update_output(self.intro_paragraphs[self.current_paragraph] + "<br>")
-        self.update_output("<span style='color:gray;'>Press any key to continue...</span><br>")
+        self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
 
         # Set initial game state to 'intro'
         self.game_state = 'intro'
@@ -183,7 +183,7 @@ class AdventureGame(QMainWindow):
             self.current_paragraph += 1
             if self.current_paragraph < len(self.intro_paragraphs):
                 self.update_output(self.intro_paragraphs[self.current_paragraph] + "<br>")
-                self.update_output("<span style='color:gray;'>Press any key to continue...</span><br>")
+                self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
             else:
                 # Transition directly to the main game
                 self.start_main_game()
@@ -269,7 +269,7 @@ class AdventureGame(QMainWindow):
                             "Once crowned with wisdom, now a shadowed name,<br>"
                             "The Son of Morning, scorched by holy flame,<br>"
                             "Condemned to walk where truth gives way to blight.<br><br>"
-                            "The serpent’s coil was science, cold and slight,<br>"
+                            "The serpent’s coil science, in hindsight,<br>"
                             "It whispered pride, my heart’s unholy claim,<br>"
                             "Its lure, forbidden, wove my soul in shame,<br>"
                             "And led me far from grace’s guiding light.<br><br>"
@@ -282,7 +282,7 @@ class AdventureGame(QMainWindow):
                         ]
                         self.end_paragraph_index = 0  # Reset the paragraph index
                         self.update_output(self.end_paragraphs[self.end_paragraph_index] + "<br>")
-                        self.update_output("<span style='color:gray;'>Press any key to continue...</span><br>")
+                        self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
                     else:
                         self.update_output("The potion is meant for Beatrice's body. Move to her location first.<br>")
                 else:
@@ -343,15 +343,15 @@ class AdventureGame(QMainWindow):
                                     "delicate, haunting patterns, like the roots of some poisonous plant burrowing into the earth. These tears, more than mere sorrow, seem to carry the essence "
                                     "of the garden itself—beautiful, deadly, and beyond comprehension.<br>")
                     self.update_output("The compulsion grows too strong to resist. Your hands, trembling slightly, reach into your belongings and retrieve a small test tube with a tight-fitting cap. The air "
-                                               "around Beatrice’s tears is thick with the floral sweetness, making your eyes water anew as you lean closer. Carefully, you tilt her face just enough to let the thick, "
-                                               "jade-green drops flow into the glass.<br>")
+                                        "around Beatrice’s tears is thick with the floral sweetness, making your eyes water anew as you lean closer. Carefully, you tilt her face just enough to let the thick, "
+                                        "jade-green drops flow into the glass.<br>")
                     self.update_output("The liquid pools at the bottom of the test tube, gleaming unnaturally as though it holds a life of its own. The floral scent intensifies for a moment, so sharp and "
                                         "cloying it feels as though it might drown you, before subsiding as you seal the tube tightly with the cap. The burning on your cheeks lingers, but there’s a strange "
                                         "satisfaction in holding this fragile vessel of her essence.<br>")
                     self.update_output("You slip the test tube into your pocket, its weight a quiet reminder of the choice you’ve made. The tears, so beautiful and haunting, are now yours to carry, though the "
                                         "thought lingers: what price might come with preserving the remnants of her poisoned sorrow?<br>")
                     self.update_output("Her dark hair, lustrous and beautiful, frames her face in soft waves, each strand a testament to the care she took even in the midst of her tragic existence. Braided "
-                                        "among the strands are delicate <b>white anemones</b>, their sharp, musky scent cutting through the air. They lie nestled like a crown upon her head, their stark whiteness "
+                                        "among the strands are delicate white <b>anemones</b>, their sharp, musky scent cutting through the air. They lie nestled like a crown upon her head, their stark whiteness "
                                         "adding a haunting elegance to her repose. Yet something about them seems deliberate, a hidden intention woven into their placement.<br>")
                     self.update_output("The garden, alive with vibrant color and intoxicating fragrance, seems to hold its breath. Beatrice, once the heart of this place, now rests in its embrace, her stillness "
                                         "both beautiful and terrible.<br>")
@@ -528,6 +528,7 @@ class AdventureGame(QMainWindow):
                         self.update_output("The beaker begins to bubble uncontrollably, steam rising in angry hisses as the mixture turns an ominous, murky color. "
                                         "Suddenly, with a deafening POP, the concoction explodes upward, splattering scalding liquid and noxious fumes into the air.<br>")
                         self.update_output("Try again using different ingredients, or go out and search for more.<br>")
+                        self.update_output("You can try by typing 'use workbench', or go to a different location using a 'move to' command.<br>")
 
                     # Reset workbench state after the attempt
                     self.used_items = []  # Reset used items for the next session
@@ -569,6 +570,8 @@ class AdventureGame(QMainWindow):
                             "Dame Lisabetta kneels beside her, weeping softly, her frail hands clutching the folds of Beatrice’s "
                             "dress as if to hold her closer to the world she has left behind.<br><br> Use the command 'examine' "
                             "followed by 'hands', 'shoes', or 'face' to inspect specific parts of Beatrice's body.<br>")
+            if 'Potion' in self.inventory:
+                self.update_output("Use command 'use potion' to use the potion on Beatrice.<br>")
         elif location == 'Fountain':
             self.update_output("The broken fountain stands to the side of the garden, a silent relic of its former grandeur. "
                             "Its fractured marble still holds a quiet dignity, though the water that trickles from its damaged spout "
@@ -603,7 +606,7 @@ class AdventureGame(QMainWindow):
         elif location == 'Lab':
             self.update_output("At the northernmost edge of the garden, concealed beneath the wild embrace of overgrowth, lies Dr. Rappaccini’s lab. The small, weathered "
                             "structure is nearly swallowed by the garden’s relentless life. Its wooden door hangs askew, broken and splintered, its strength eroded by time "
-                            "and neglect. Wild <b>grapevines</b> coil tightly across its surface, their dark leaves thick and glossy, their clusters of grapes hanging heavy like "
+                            "and neglect. Wild <b>grapes</b> coil tightly across its surface, their dark leaves thick and glossy, their clusters of grapes hanging heavy like "
                             "forgotten ornaments.<br>")
             self.update_output("The grapes catch your eye, their rich, deep purple mirroring the hue of Beatrice’s fingertips and lips—a haunting reminder of the poison that "
                             "consumed her. They glisten faintly, their thin skins taut and unbroken, exuding a faintly sour aroma that mixes with the sharper chemical tang "
@@ -627,10 +630,10 @@ class AdventureGame(QMainWindow):
             self.update_output("At the workbench, amidst the scattered papers stained with chemical spills and hurried scrawls, one sheet catches your attention. Its edges are "
                                "singed, as though it had once come dangerously close to an open flame, yet the writing is unmistakably deliberate. Unlike the other notes and "
                                "scribbles, this one is crafted with care, written in elegant, looping script.<br>")
-            self.update_output("The words are arranged in fourteen lines, their rhythm and rhyme unmistakable: a Petrarchan <b>sonnet</b>, its form popular in the Romantic period. "
+            self.update_output("The words are arranged in two poems of fourteen lines, their rhythm and rhyme unmistakable: Petrarchan <b>sonnets</b>, their form popular in the Romantic period. "
                                "The carefully constructed lines suggest that this is no ordinary note—it must hold the secret to Dr. Rappaccini’s antidote. The clever disguise "
                                "of poetry was likely meant to ensure only someone as determined and intuitive as you could uncover its meaning.<br>")
-            self.update_output("Use command 'use workbench' to use the workbench.<br>")
+            self.update_output("Use command '<b>use workbench</b>' to use the workbench.<br>")
 
     def start_main_game(self):
         # Transition to the main game loop
@@ -664,7 +667,7 @@ class AdventureGame(QMainWindow):
             self.current_paragraph += 1
             if self.current_paragraph < len(self.intro_paragraphs):
                 self.update_output(self.intro_paragraphs[self.current_paragraph] + "<br>")
-                self.update_output("<span style='color:gray;'>Press any key to continue...</span><br>")
+                self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
             else:
                 # Transition directly to the main game
                 self.start_main_game()
@@ -676,7 +679,7 @@ class AdventureGame(QMainWindow):
             self.end_paragraph_index += 1
             if self.end_paragraph_index < len(self.end_paragraphs):
                 self.update_output(self.end_paragraphs[self.end_paragraph_index] + "<br>")
-                self.update_output("<span style='color:gray;'>Press any key to continue...</span><br>")
+                self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
             else:
                 self.update_output("The story has concluded. Please exit the game.<br>")
                 self.input_line.setEnabled(False)  # Disable input field
