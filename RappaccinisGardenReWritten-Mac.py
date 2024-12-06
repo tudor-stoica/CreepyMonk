@@ -3,6 +3,18 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QLine
 from PyQt5.QtGui import QTextCursor, QPixmap
 from PyQt5.QtCore import Qt, QSize
 
+
+def get_resource_path(relative_path):
+    """
+    Get the absolute path to a resource, works for both development and PyInstaller.
+    :param relative_path: Relative file path to the resource
+    :return: Absolute file path
+    """
+    if hasattr(sys, '_MEIPASS'):  # When bundled with PyInstaller
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), relative_path)
+
+
 class AdventureGame(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -46,11 +58,11 @@ class AdventureGame(QMainWindow):
 
         # Map locations to available items and their associated images
         self.location_items = {
-            'body': {'anemones': 'anemones.pdf'},
-            'fountain': {'pigweed': 'pigweed.pdf', 'apple-peru': 'appleperu.pdf'},
-            'statues': {'moss': 'moss.pdf', 'bachelors buttons': 'bachelorsbuttons.pdf'},
-            'gate': {'cherry blossom': 'cherryblossom.pdf', 'apple tree': 'appletree.pdf'},
-            'lab': {'wild grapes': 'wildgrapevine.pdf', 'sonnets': 'Sonnets.pdf'}
+            'body': {'anemones': get_resource_path('anemones.pdf')},
+            'fountain': {'pigweed': get_resource_path('pigweed.pdf'), 'apple-peru': get_resource_path('appleperu.pdf')},
+            'statues': {'moss': get_resource_path('moss.pdf'), 'bachelors buttons': get_resource_path('bachelorsbuttons.pdf')},
+            'gate': {'cherry blossom': get_resource_path('cherryblossom.pdf'), 'apple tree': get_resource_path('appletree.pdf')},
+            'lab': {'wild grapes': get_resource_path('wildgrapevine.pdf'), 'sonnets': get_resource_path('Sonnets.pdf')}
         }
 
         # Initialize locations
@@ -357,7 +369,7 @@ class AdventureGame(QMainWindow):
                     self.update_output("The garden, alive with vibrant color and intoxicating fragrance, seems to hold its breath. Beatrice, once the heart of this place, now rests in its embrace, her stillness "
                                         "both beautiful and terrible.<br>")
                     self.update_output("You have added \'green tears\' to your inventory.<br>")
-                    self.inventory.append(("green tears", "greentears.pdf"))
+                    self.inventory.append(("green tears", get_resource_path("greentears.pdf")))
                     self.show_pdf("greentears.pdf")
                 else:
                     self.update_output("You cannot examine that. Try 'hands', 'shoes', or 'face'.<br>")
@@ -504,7 +516,7 @@ class AdventureGame(QMainWindow):
                         # Success case
                         self.update_output("The potion is ready, its surface glowing faintly as though alive with hope—or perhaps something far more perilous. "
                                         "In your hands lies the culmination of your efforts, the chance to undo the poison that claimed Beatrice’s life.<br>")
-                        self.inventory.append(("potion", "potion.pdf"))  # Add potion to inventory
+                        self.inventory.append(("potion", get_resource_path("potion.pdf")))  # Add potion to inventory
                         self.show_pdf("potion.pdf")  # Open the potion PDF
                         self.update_output("You can now try using the potion on Beatrice's body. Please move to Beatrice's body.<br>")
                     else:
@@ -631,16 +643,22 @@ class AdventureGame(QMainWindow):
                             'Use command \'list items\' to print out a list of all items held in the inventory<br>' +
                             'Use command \'grab\' followed by a reachable item to grab the item and add it to your inventory  (note, items are bolded)<br>' +
                             'Use command \'help\' to print out these instructions once again<br><br>')
-        self.inventory.append(("map", "map.pdf"))
+        self.inventory.append(("map", get_resource_path("map.pdf")))
         self.show_pdf("map.pdf")
         self.enter_area('body')  # Enter the initial location
 
     def show_pdf(self, pdf_path):
+        """
+        Show the given PDF file in the default system viewer.
+        :param pdf_path: Relative file path to the PDF
+        """
+        full_path = get_resource_path(pdf_path)
+
         # Ensure the file exists
-        if os.path.exists(pdf_path):
+        if os.path.exists(full_path):
             # Open the PDF with the default system viewer
-            os.system(f'open "{pdf_path}"')  # macOS/Linux
-            # For Windows, replace with os.system(f'start "" "{pdf_path}"')
+            os.system(f'open "{full_path}"')  # macOS/Linux
+            # For Windows, use os.system(f'start "" "{full_path}"')
         else:
             self.update_output("<span style='color:black;'>PDF not found!</span><br>")
 
@@ -672,6 +690,7 @@ class AdventureGame(QMainWindow):
 
         # Default behavior for other key press events
         super().keyPressEvent(event)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
