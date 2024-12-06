@@ -46,16 +46,16 @@ class AdventureGame(QMainWindow):
 
         # Map locations to available items and their associated images
         self.location_items = {
-            'Body': {'Anemones': 'anemones.pdf'},
-            'Fountain': {'Pigweed': 'pigweed.pdf', 'Apple-Peru': 'appleperu.pdf'},
-            'Statues': {'Moss': 'moss.pdf', 'Bachelors-Buttons': 'bachelorsbuttons.pdf'},
-            'Gate': {'Cherry-Blossom': 'cherryblossom.pdf', 'Apple-Tree': 'appletree.pdf'},
-            'Lab': {'Wild-Grapes': 'wildgrapevine.pdf', 'Sonnets': 'Sonnets.pdf'}
+            'body': {'anemones': 'anemones.pdf'},
+            'fountain': {'pigweed': 'pigweed.pdf', 'apple-peru': 'appleperu.pdf'},
+            'statues': {'moss': 'moss.pdf', 'bachelors buttons': 'bachelorsbuttons.pdf'},
+            'gate': {'cherry blossom': 'cherryblossom.pdf', 'apple tree': 'appletree.pdf'},
+            'lab': {'wild grapes': 'wildgrapevine.pdf', 'sonnets': 'Sonnets.pdf'}
         }
 
         # Initialize locations
-        self.locations = ['Body', 'Fountain', 'Statues', 'Gate', 'Lab']
-        self.current_location = 'Body'  # Starting location
+        self.locations = ['body', 'fountain', 'statues', 'gate', 'lab']
+        self.current_location = 'body'  # Starting location
 
         # Create a splitter to dynamically resize top and bottom sections
         self.splitter = QSplitter(Qt.Vertical)
@@ -168,7 +168,7 @@ class AdventureGame(QMainWindow):
         self.output_area.moveCursor(QTextCursor.End)
 
     def process_input(self):
-        user_input = self.input_line.text().strip()
+        user_input = self.input_line.text().strip().lower()
         self.input_line.clear()
 
         if not user_input:
@@ -204,10 +204,10 @@ class AdventureGame(QMainWindow):
                 self.update_output(f'<span style="color:black;">{command} is not a valid command.</span><br>')
                 return
             
-            if self.current_location == 'Lab':
+            if self.current_location == 'lab':
                 # Check for 'use workbench' command
                 if command == 'use' and len(parts) > 1 and parts[1].lower() == 'workbench':
-                    if len([item for item in self.inventory if item[0] not in ['Map', 'Sonnets', 'Potion']]) < 4:
+                    if len([item for item in self.inventory if item[0] not in ['map', 'sonnets', 'potion']]) < 4:
                         self.update_output("It seems like you do not have enough items to create a potion.<br>")
                     else:
                         self.game_state = 'workbench'
@@ -219,12 +219,12 @@ class AdventureGame(QMainWindow):
                         self.list_inventory()
                     return
                 elif command == 'use':
-                    self.update_output("Invalid syntax. Use 'use workbench' to interact with the workbench in the Lab.<br>")
+                    self.update_output("Invalid syntax. Use '<b>use workbench</b>' to interact with the workbench in the Lab.<br>")
                     return
 
             if command == 'use' and len(parts) > 1 and parts[1].lower() == 'potion':
-                if any(item[0] == 'Potion' for item in self.inventory):
-                    if self.current_location == 'Body':
+                if any(item[0] == 'potion' for item in self.inventory):
+                    if self.current_location == 'body':
                         self.game_state = 'end_sequence'  # Transition to the ending sequence state
                         self.end_paragraphs = [
                             # Add the provided paragraphs here
@@ -297,19 +297,20 @@ class AdventureGame(QMainWindow):
 
                 self.update_output('Welcome to Rappaccini\'s Garden!<br><br>' +
                             'Instructions:<br>' + 
-                            'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to Gate\'<br>' +
-                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: \'Body\' for Beatrice\'s Body, \'Lab\' for Dr. Rappaccini\'s Lab, \'Gate\' for The Secret Gate,<br>' +
-                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\'Fountain\' for The Broken Marble Fountain, and \'Statues\' for The Statues Covered With Overgrown Foliage<br>' +
+                            'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to gate\'<br>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: <b>\'body\'</b> for Beatrice\'s Body, <b>\'lab\'</b> for Dr. Rappaccini\'s Lab, <b>\'gate\'</b> for The Secret Gate,<br>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>\'fountain\'</b> for The Broken Marble Fountain, and <b>\'statues\'</b> for The Statues Covered With Overgrown Foliage<br>' +
                             'Use command \'current location\' to print out the current location of the player<br>' +
                             'Use command \'show \' followed by a item currently held in inventory to view the item. Ex. \'show oobi\'<br>' +
                             'Use command \'list items\' to print out a list of all items held in the inventory<br>' +
-                            'Use command \'grab\' followed by a reachable item to grab the item and add it to your inventory<br>' +
-                            'Use command \'use potion\' near Beatrice\'s body, if potion has been aquired, to use the potion on Beatrice<br>' +
+                            'Use command \'grab\' followed by a reachable item to grab the item and add it to your inventory (note, items are bolded)<br>' +
                             'Use command \'help\' to print out these instructions once again<br><br>')
-                if self.current_location == 'Body':
+                if self.current_location == 'body':
                     self.update_output("Extra command: Use the command 'examine' followed by 'hands', 'shoes', or 'face' to inspect specific parts of Beatrice's body.<br>")
-                if self.current_location == 'Lab':
-                    self.update_output("Extra command: You can use the workbench by typing 'use workbench'. Make sure you have at least 4 items in your inventory.<br>")
+                    if any(item[0] == 'potion' for item in self.inventory):
+                        self.update_output("Use command 'use potion' to use the potion on Beatrice.<br>")  
+                if self.current_location == 'lab':
+                    self.update_output("Extra command: You can use the workbench by typing '<b>use workbench</b>'. Make sure you have at least 4 items in your inventory.<br>")
                 return
 
             # Handle 'current location' command
@@ -320,7 +321,7 @@ class AdventureGame(QMainWindow):
                 self.update_output("Invalid syntax. Use 'current location'.<br>")
                 return
 
-            if command == 'examine' and self.current_location == 'Body':
+            if command == 'examine' and self.current_location == 'body':
                 if len(parts) < 2:
                     self.update_output("You must specify what to examine: 'hands', 'shoes', or 'face'.<br>")
                     return
@@ -355,8 +356,8 @@ class AdventureGame(QMainWindow):
                                         "adding a haunting elegance to her repose. Yet something about them seems deliberate, a hidden intention woven into their placement.<br>")
                     self.update_output("The garden, alive with vibrant color and intoxicating fragrance, seems to hold its breath. Beatrice, once the heart of this place, now rests in its embrace, her stillness "
                                         "both beautiful and terrible.<br>")
-                    self.update_output("You have added \'Green-Tears\' to your inventory.<br>")
-                    self.inventory.append(("Green-Tears", "greentears.pdf"))
+                    self.update_output("You have added \'green tears\' to your inventory.<br>")
+                    self.inventory.append(("green tears", "greentears.pdf"))
                     self.show_pdf("greentears.pdf")
                 else:
                     self.update_output("You cannot examine that. Try 'hands', 'shoes', or 'face'.<br>")
@@ -364,67 +365,50 @@ class AdventureGame(QMainWindow):
 
             # Handle 'grab' command
             if command == 'grab':
-                if len(parts) < 2:
-                    self.update_output('<span style="color:black;">An item must follow the command \'grab\'.</span><br>')
+                item_name = " ".join(parts[1:])  # Combine the rest into the item name
+                available_items = self.location_items.get(self.current_location, {})
+                if item_name in available_items:
+                    # Safely retrieve the file name
+                    image_file = available_items[item_name]
+                    # Add item to inventory and remove from location
+                    self.inventory.append((item_name, image_file))
+                    del self.location_items[self.current_location][item_name]
+                    self.update_output(f"You grabbed {item_name}.<br>")
+                    self.show_pdf(image_file)  # Automatically display the item after grabbing
+                elif any(i[0] == item_name for i in self.inventory):
+                    self.update_output(f"{item_name} is already in your inventory!<br>")
                 else:
-                    item = " ".join(parts[1:])  # Combine remaining parts into the item name
-                    
-                    # Check items available in the current location
-                    available_items = self.location_items.get(self.current_location, {})
-                    if item in available_items:
-                        # Safely retrieve the file name
-                        image_file = available_items[item]
-                        
-                        # Add item to inventory and remove from location
-                        self.inventory.append((item, image_file))  # Store as (item_name, file_name)
-                        del self.location_items[self.current_location][item]
-
-                        self.update_output(f'<span style="color:black;">User grabbed {item}.</span><br>')
-                        
-                        # Automatically display the item after grabbing
-                        self.show_pdf(image_file)
-
-                    elif any(i[0] == item for i in self.inventory):
-                        self.update_output(f'<span style="color:black;">{item} is already in your inventory!</span><br>')
-                    else:
-                        self.update_output(f'<span style="color:black;">There is no item {item} to grab at this location.</span><br>')
+                    self.update_output(f"There is no item '{item_name}' to grab at this location.<br>")
                 return
 
             # Handle 'list items' command
             if command == 'list':
-                if len(parts) == 2 and parts[1].lower() == 'items':
-                    # List inventory items
+                if len(parts) == 2 and parts[1] == 'items':
                     if self.inventory:
                         inventory_items = ', '.join(item[0] for item in self.inventory)
-                        self.update_output(f'<span style="color:black;">Items in your inventory: {inventory_items}</span><br>')
+                        self.update_output(f"Items in your inventory: {inventory_items}<br>")
                     else:
-                        self.update_output('<span style="color:black;">Your inventory is empty.</span><br>')
-                    
-                    # List available items at the current location
+                        self.update_output("Your inventory is empty.<br>")
                     location_items = self.location_items.get(self.current_location, {})
                     if location_items:
                         location_items_list = ', '.join(location_items.keys())
-                        self.update_output(f'<span style="color:black;">Items available at this location: {location_items_list}</span><br>')
+                        self.update_output(f"Items available at this location: {location_items_list}<br>")
                     else:
-                        self.update_output('<span style="color:black;">No items available to grab at this location.</span><br>')
+                        self.update_output("No items available to grab at this location.<br>")
                     return
                 else:
-                    self.update_output(f'<span style="color:black;">{user_input} is not a valid command.</span><br>')
-                    return
+                    self.update_output(f"'list' is not a valid command. Did you mean 'list items'?<br>")
+                return
 
             # Handle 'show' command
             if command == 'show':
-                if len(parts) < 2:
-                    self.update_output('<span style="color:black;">An item must follow the command \'show\'.</span><br>')
-                else:
-                    item = " ".join(parts[1:])  # Combine remaining parts into the item name
-                    # Check if the item is in the inventory
-                    for inv_item, image_file in self.inventory:
-                        if inv_item == item:
-                            self.update_output(f'<span style="color:black;">Showing {item}.</span><br>')
-                            self.show_pdf(image_file)  # Show the corresponding image
-                            return
-                    self.update_output(f'<span style="color:black;">You do not have {item} in your inventory.</span><br>')
+                item_name = " ".join(parts[1:])  # Combine the rest into the item name
+                for inv_item, image_file in self.inventory:
+                    if inv_item == item_name:
+                        self.update_output(f"Showing {item_name}.<br>")
+                        self.show_pdf(image_file)
+                        return
+                self.update_output(f"You do not have '{item_name}' in your inventory.<br>")
                 return
 
             # Handle 'move to' command
@@ -460,7 +444,7 @@ class AdventureGame(QMainWindow):
 
             if self.workbench_step == 1:
                 base = user_input.strip()
-                if any(item[0] == base and base not in self.used_items and item[0] not in ['Potion', 'Sonnets', 'Map'] for item in self.inventory):
+                if any(item[0] == base and base not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
                     self.selected_base = base
                     self.used_items.append(base)  # Mark base as used
                     self.update_output(f"You selected {base} as the base.<br>")
@@ -473,12 +457,12 @@ class AdventureGame(QMainWindow):
                     self.list_inventory()  # Show available items
                 else:
                     self.update_output(f"{base} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show Sonnets\'<br>")
+                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
                 return
 
             if self.workbench_step == 2:
                 ingredient1 = user_input.strip()
-                if any(item[0] == ingredient1 and ingredient1 not in self.used_items and item[0] not in ['Potion', 'Sonnets', 'Map'] for item in self.inventory):
+                if any(item[0] == ingredient1 and ingredient1 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
                     self.selected_ingredient1 = ingredient1
                     self.used_items.append(ingredient1)  # Mark ingredient as used
                     self.update_output(f"You added {ingredient1} to the potion.<br>")
@@ -487,12 +471,12 @@ class AdventureGame(QMainWindow):
                     self.list_inventory()  # Show available items
                 else:
                     self.update_output(f"{ingredient1} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show Sonnets\'<br>")
+                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
                 return
 
             if self.workbench_step == 3:
                 ingredient2 = user_input.strip()
-                if any(item[0] == ingredient2 and ingredient2 not in self.used_items and item[0] not in ['Potion', 'Sonnets', 'Map'] for item in self.inventory):
+                if any(item[0] == ingredient2 and ingredient2 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
                     self.selected_ingredient2 = ingredient2
                     self.used_items.append(ingredient2)  # Mark ingredient as used
                     self.update_output(f"You added {ingredient2} to the potion.<br>")
@@ -501,18 +485,18 @@ class AdventureGame(QMainWindow):
                     self.list_inventory()  # Show available items
                 else:
                     self.update_output(f"{ingredient2} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show Sonnets\'<br>")
+                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
                 return
 
             if self.workbench_step == 4:
                 ingredient3 = user_input.strip()
-                if any(item[0] == ingredient3 and ingredient3 not in self.used_items and item[0] not in ['Potion', 'Sonnets', 'Map'] for item in self.inventory):
+                if any(item[0] == ingredient3 and ingredient3 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
                     self.selected_ingredient3 = ingredient3
                     self.used_items.append(ingredient3)  # Mark the ingredient as used
 
                     # Check if the recipe is correct
-                    correct_base = "Green-Tears"
-                    correct_ingredients = {"Anemones", "Pigweed", "Moss"}
+                    correct_base = "green tears"
+                    correct_ingredients = {"anemones", "pigweed", "moss"}
 
                     # Verify the base and the selected ingredients
                     if (self.selected_base == correct_base and
@@ -520,15 +504,15 @@ class AdventureGame(QMainWindow):
                         # Success case
                         self.update_output("The potion is ready, its surface glowing faintly as though alive with hope—or perhaps something far more perilous. "
                                         "In your hands lies the culmination of your efforts, the chance to undo the poison that claimed Beatrice’s life.<br>")
-                        self.inventory.append(("Potion", "potion.pdf"))  # Add potion to inventory
+                        self.inventory.append(("potion", "potion.pdf"))  # Add potion to inventory
                         self.show_pdf("potion.pdf")  # Open the potion PDF
-                        self.update_output("You can now try using the potion on Beatrice's body.<br>")
+                        self.update_output("You can now try using the potion on Beatrice's body. Please move to Beatrice's body.<br>")
                     else:
                         # Failure case
                         self.update_output("The beaker begins to bubble uncontrollably, steam rising in angry hisses as the mixture turns an ominous, murky color. "
                                         "Suddenly, with a deafening POP, the concoction explodes upward, splattering scalding liquid and noxious fumes into the air.<br>")
                         self.update_output("Try again using different ingredients, or go out and search for more.<br>")
-                        self.update_output("You can try by typing 'use workbench', or go to a different location using a 'move to' command.<br>")
+                        self.update_output("You can try again by typing '<b>use workbench</b>', or go to a different location using a 'move to' command.<br>")
 
                     # Reset workbench state after the attempt
                     self.used_items = []  # Reset used items for the next session
@@ -540,7 +524,7 @@ class AdventureGame(QMainWindow):
                 return
 
     def list_inventory(self):
-        available_items = [item[0] for item in self.inventory if item[0] not in self.used_items and item[0] not in ['Potion', 'Sonnets', 'Map']]
+        available_items = [item[0] for item in self.inventory if item[0] not in self.used_items and item[0] not in ['potion', 'sonnets', 'map']]
         if available_items:
             inventory_items = ', '.join(available_items)
             self.update_output(f"Your available inventory: {inventory_items}<br>")
@@ -550,29 +534,29 @@ class AdventureGame(QMainWindow):
     def enter_area(self, location):
         self.current_location = location
 
-        if location == 'Body':
+        if location == 'body':
             full_location = 'Beatrice\'s Body'
-        elif location == 'Fountain':
+        elif location == 'fountain':
             full_location = 'The Broken Marble Fountain'
-        elif location == 'Statues':
+        elif location == 'statues':
             full_location = 'The Statues Covered With Overgrown Foliage'
-        elif location == 'Gate':
+        elif location == 'gate':
             full_location = 'The Secret Gate'
-        elif location == 'Lab':
+        elif location == 'lab':
             full_location = 'Dr. Rappaccini\'s Lab'
 
         self.update_output(f"You have walked to {full_location}.<br>")
 
-        if location == 'Body':
+        if location == 'body':
             self.update_output("At the very heart of the garden, where the plants seem most alive with unnatural vigor, "
                             "Beatrice lies motionless, her form radiant even in death. She rests upon the earth as though "
                             "the garden itself has claimed her, the vibrant life around her mocking the stillness of her body. "
                             "Dame Lisabetta kneels beside her, weeping softly, her frail hands clutching the folds of Beatrice’s "
                             "dress as if to hold her closer to the world she has left behind.<br><br> Use the command 'examine' "
                             "followed by 'hands', 'shoes', or 'face' to inspect specific parts of Beatrice's body.<br>")
-            if 'Potion' in self.inventory:
+            if any(item[0] == 'potion' for item in self.inventory):
                 self.update_output("Use command 'use potion' to use the potion on Beatrice.<br>")
-        elif location == 'Fountain':
+        elif location == 'fountain':
             self.update_output("The broken fountain stands to the side of the garden, a silent relic of its former grandeur. "
                             "Its fractured marble still holds a quiet dignity, though the water that trickles from its damaged spout "
                             "seems to sustain not beauty, but invasion. Two plants have taken root nearby, their presence bold and unyielding.<br>")
@@ -580,21 +564,21 @@ class AdventureGame(QMainWindow):
                             "Beside it, the ghostly <b>apple-peru</b>, with its thorned stems and pale, bell-shaped flowers, leans as though "
                             "drawn to the fountain’s water. These invasive plants thrive here, leaching from the broken structure, their "
                             "relentless growth a mockery of the fountain’s once-pristine form.<br>")
-        elif location == 'Statues':
+        elif location == 'statues':
             self.update_output("You approach a secluded corner of the garden, where ancient statues rise from the earth, their forms veiled "
                             "in layers of thick <b>moss</b>. The soft, green growth clings to the stone like an aged memory, its earthy, woody scent "
                             "mingling with the dampness of the air. The statues are barely recognizable, their features eroded by time and now "
                             "obscured by nature’s relentless touch. This overgrowth, symbolic of decay and renewal, renders the statues ghostlike, "
                             "blending them into the landscape.<br>")
-            self.update_output("At the base of the statues, a bed of <b>bachelor’s buttons</b> spreads, their deep blue and purple blooms forming a luscious "
+            self.update_output("At the base of the statues, a bed of <b>bachelors buttons</b> spreads, their deep blue and purple blooms forming a luscious "
                             "carpet. Their mild, earthy fragrance contrasts with the sharp tang of the moss, creating a peculiar harmony. The flowers "
                             "thrive in wild abundance, as though the statues themselves have nurtured this beauty amidst the ruin.<br>")
             self.update_output("This place feels alive yet somber, the moss and flowers combining to create a scene of quiet reverence, where nature has "
                             "reclaimed what was once the work of man.<br>")
-        elif location == 'Gate':
+        elif location == 'gate':
             self.update_output("The Secret Gate, the one Dame Lisabetta once revealed to you, stands hidden at the edge of the garden, cloaked in the wild "
                             "embrace of overgrowth. Its iron bars, once strong and imposing, are now weathered by time and nearly swallowed by the trees that "
-                            "guard it. The delicate limbs of a <b>cherry blossom tree</b> arch gracefully over the gate, its pale pink and white blossoms scattering "
+                            "guard it. The delicate limbs of a <b>cherry blossom</b> tree arch gracefully over the gate, its pale pink and white blossoms scattering "
                             "petals onto the path below. Their fleeting beauty seems almost to mourn the secrets the gate keeps locked away. The air is sweet "
                             "with their faint floral scent, tinged by the bitterness of their inevitable fall.<br>")
             self.update_output("Beside it grows an <b>apple tree</b>, its gnarled branches twisted in forms that seem almost human, stretching toward the gate as if in longing. "
@@ -603,10 +587,10 @@ class AdventureGame(QMainWindow):
                             "both somber and enduring.<br>")
             self.update_output("These trees, intertwined and resolute, shield the gate as if conspiring with it to conceal what lies beyond. Their beauty, at once serene and "
                             "unsettling, reminds you of the garden’s strange balance between life and decay.<br>")
-        elif location == 'Lab':
+        elif location == 'lab':
             self.update_output("At the northernmost edge of the garden, concealed beneath the wild embrace of overgrowth, lies Dr. Rappaccini’s lab. The small, weathered "
                             "structure is nearly swallowed by the garden’s relentless life. Its wooden door hangs askew, broken and splintered, its strength eroded by time "
-                            "and neglect. Wild <b>grapes</b> coil tightly across its surface, their dark leaves thick and glossy, their clusters of grapes hanging heavy like "
+                            "and neglect. <b>Wild grapes</b> coil tightly across its surface, their dark leaves thick and glossy, their clusters of grapes hanging heavy like "
                             "forgotten ornaments.<br>")
             self.update_output("The grapes catch your eye, their rich, deep purple mirroring the hue of Beatrice’s fingertips and lips—a haunting reminder of the poison that "
                             "consumed her. They glisten faintly, their thin skins taut and unbroken, exuding a faintly sour aroma that mixes with the sharper chemical tang "
@@ -639,18 +623,17 @@ class AdventureGame(QMainWindow):
         # Transition to the main game loop
         self.update_output('Welcome to Rappaccini\'s Garden!<br><br>' +
                             'Instructions:<br>' + 
-                            'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to Gate\'<br>' +
-                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: \'Body\' for Beatrice\'s Body, \'Lab\' for Dr. Rappaccini\'s Lab, \'Gate\' for The Secret Gate,<br>' +
-                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\'Fountain\' for The Broken Marble Fountain, and \'Statues\' for The Statues Covered With Overgrown Foliage<br>' +
+                            'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to gate\'<br>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: <b>\'body\'</b> for Beatrice\'s Body, <b>\'lab\'</b> for Dr. Rappaccini\'s Lab, <b>\'gate\'</b> for The Secret Gate,<br>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>\'fountain\'</b> for The Broken Marble Fountain, and <b>\'statues\'</b> for The Statues Covered With Overgrown Foliage<br>' +
                             'Use command \'current location\' to print out the current location of the player<br>' +
                             'Use command \'show \' followed by a item currently held in inventory to view the item. Ex. \'show oobi\'<br>' +
                             'Use command \'list items\' to print out a list of all items held in the inventory<br>' +
-                            'Use command \'grab\' followed by a reachable item to grab the item and add it to your inventory<br>' +
-                            'Use command \'use potion\' near Beatrice\'s body, if potion has been aquired, to use the potion on Beatrice<br>' +
+                            'Use command \'grab\' followed by a reachable item to grab the item and add it to your inventory  (note, items are bolded)<br>' +
                             'Use command \'help\' to print out these instructions once again<br><br>')
-        self.inventory.append(("Map", "map.pdf"))
+        self.inventory.append(("map", "map.pdf"))
         self.show_pdf("map.pdf")
-        self.enter_area('Body')  # Enter the initial location
+        self.enter_area('body')  # Enter the initial location
 
     def show_pdf(self, pdf_path):
         # Ensure the file exists
@@ -676,12 +659,13 @@ class AdventureGame(QMainWindow):
             return
         
         if self.game_state == 'end_sequence':
+            self.input_line.setEnabled(False)  # Disable input field
             self.end_paragraph_index += 1
             if self.end_paragraph_index < len(self.end_paragraphs):
                 self.update_output(self.end_paragraphs[self.end_paragraph_index] + "<br>")
                 self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
             else:
-                self.update_output("The story has concluded. Please exit the game.<br>")
+                self.update_output("The story has concluded. Thank you for playing my game! You can now read over the story, or exit the game.<br>")
                 self.input_line.setEnabled(False)  # Disable input field
                 self.game_state = 'ended'  # Final state to prevent further actions
             return
