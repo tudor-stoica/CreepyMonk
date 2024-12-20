@@ -1,8 +1,7 @@
 import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QLineEdit, QPushButton, QLabel, QMainWindow, QSplitter
 from PyQt5.QtGui import QTextCursor, QPixmap
-from PyQt5.QtCore import Qt, QSize
-
+from PyQt5.QtCore import Qt, QSize, QTimer
 
 def get_resource_path(relative_path):
     """
@@ -28,7 +27,7 @@ class AdventureGame(QMainWindow):
         height = int(screen.height() * 0.6)
         self.resize(width, height)
 
-        self.setWindowTitle('Creepy Monk')
+        self.setWindowTitle('COLOURFUL WOMEN IN AMBROSIO’S LIFE')
         self.start_screen()
 
         self.location_full_names = {
@@ -37,7 +36,7 @@ class AdventureGame(QMainWindow):
             'matilda': 'Matilda in the Monastery',
             'antonia': 'Antonia\'s Tomb'
         }
-        self.end_paragraphs = [
+        self.end_paragraphs1 = [
             "Ambrosio blinked as the air around him grew still and heavy, the suffocating weight of judgment returning. The faint glow of divine light "
             "illuminated the vast, ethereal space, and before him stood the canvas—blank, waiting, and unrelenting.<br>",
 
@@ -62,7 +61,8 @@ class AdventureGame(QMainWindow):
             "walks the path I have tread.\"<br>",
 
             "The painting glowed faintly, its light softening, as though awaiting its companion words.<br>",
-
+        ]
+        self.end_paragraphs2 = [
             "Ambrosio gazed upon the painting, his voice low and heavy with remorse:<br>",
 
             "\"Men and monks alike wield great power over women, a power that shapes their lives in ways we often fail to see. Their well-being, their dignity, so often rests in our hands, "
@@ -72,6 +72,34 @@ class AdventureGame(QMainWindow):
             "To hold such power is not a privilege but a sacred responsibility, a duty to protect, to guide with care. Yet I—driven by pride, blinded by lust—turned trust into chains and harmony "
             "into ruin. This painting speaks not only of grace but of the fragility of control. Let it remind all who see it that life itself is a dance, and power, when wielded with cruelty, "
             "destroys not only the one held but also the one who holds. Let us learn to carry others gently, lest we fall together into darkness.\"<br>"
+        ]
+        self.final_text = [
+            "The void dissolved, and the painting descended, its glow dimming to a faint, steady pulse. "
+            "The swirling colors—black, red, white, gold, sable, and rose—settled into sharp clarity, each stroke "
+            "vivid and alive. The light faded entirely, leaving the painting hovering in silence, its weight undeniable.<br>",
+
+            "The scene shifted to a small, austere cell. The bare stone walls were cold and unadorned, save for a "
+            "simple cot and a wooden desk. Above the desk hung the Madonna, her serene visage framed in candlelight, "
+            "a silent witness to the faith and ambition that once filled the room.<br>",
+
+            "Two monks entered, their steps quiet as they carried the new painting into the cell. Without a word, "
+            "they removed the Madonna, lowering her gently to the floor. The new canvas was hung in her place, its "
+            "heavy frame settling into the stone wall as though it had always belonged there.<br>",
+
+            "The image emerged in the dim light: a towering man holding a veiled woman, her body limp in his arms. "
+            "Her sorrowful figure seemed to drift between light and shadow, while the man’s form loomed with equal parts "
+            "guilt and power. The colors glowed faintly—black shrouding the edges, red streaking through the heart, white "
+            "barely visible in the veil, and gold, sable, and rose pulsing with quiet menace.<br>",
+
+            "A novice stepped through the doorway, his robe trailing on the floor. He stopped abruptly, his breath catching "
+            "as his gaze fell upon the painting. The room felt heavier, the flickering candlelight bending faintly toward the "
+            "canvas as though drawn to it.<br>",
+
+            "The novice knelt, his head bowed low. The silence in the room was absolute, broken only by the faint rustle of "
+            "fabric as he remained there, motionless.<br>",
+
+            "Above him, the painting hung, its glow subtle yet unyielding. The Madonna was gone, her gentleness replaced by "
+            "the unspoken weight of what now remained.<br>"
         ]
         self.intro_paragraphs = [
             "'What?' He cried, darting at him a look of fury: 'Dare you still implore the Eternal's mercy? Would you feign penitence, and again "
@@ -143,12 +171,17 @@ class AdventureGame(QMainWindow):
 
             "\"Yes.\"<br>"
         ]
-
+        self.location_interaction_completed = {
+            'elvira': False,
+            'matilda': False,
+            'antonia': False
+        }
 
         self.game_state = 'start'  # Start in the 'start' phase
         self.workbench_step = 0  # Initialize the workbench step counter
         self.used_items = []
         self.on_complete = None  # Initialize on_complete callback
+        self.keypress_ready = True  # Ensures we only handle keypresses after a short delay
         
     def start_screen(self):
         # Create the start button screen
@@ -171,14 +204,13 @@ class AdventureGame(QMainWindow):
 
         # Initialize inventory and ungrabbed items
         self.inventory = []  # Start with an empty inventory
-        self.inventory.append(("potion", get_resource_path("map.pdf")))
 
         # Map locations to available items and their associated images
         self.location_items = {
             'purgatory': {},
-            'elvira': {'black': get_resource_path('pigweed.pdf')},
-            'antonia': {'red': get_resource_path('moss.pdf'), 'white': get_resource_path('bachelorsbuttons.pdf')},
-            'matilda': {'sable': get_resource_path('wildgrapevine.pdf'), 'gold': get_resource_path('Sonnets.pdf'), 'rose': get_resource_path('Sonnets.pdf')}
+            'elvira': {'black': get_resource_path('black.pdf')},
+            'antonia': {'red': get_resource_path('red.pdf'), 'white': get_resource_path('white.pdf')},
+            'matilda': {'sable': get_resource_path('full.pdf'), 'gold': get_resource_path('gold.pdf'), 'rose': get_resource_path('rose.pdf')}
         }
 
         # Initialize locations
@@ -191,7 +223,7 @@ class AdventureGame(QMainWindow):
         # Output area (80% of height)
         self.output_area = QTextEdit()
         self.output_area.setReadOnly(True)
-        self.output_area.setStyleSheet("background-color: #CDEBC5; color: black; padding-left: 10px; padding-right: 5px;")
+        self.output_area.setStyleSheet("background-color: black; color: white; padding-left: 10px; padding-right: 5px;")
         self.output_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Remove vertical scrollbar
         self.output_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Remove horizontal scrollbar
         self.splitter.addWidget(self.output_area)
@@ -245,42 +277,24 @@ class AdventureGame(QMainWindow):
             if command not in valid_commands:
                 self.update_output(f'<span style="color:black;">{command} is not a valid command.</span><br>')
                 return
-            
-            if self.current_location == 'purgatory':
-                # Check for 'use workbench' command
-                if command == 'use' and len(parts) > 1 and parts[1].lower() == 'easel':
-                    if len([item for item in self.inventory if item[0] not in ['empty canvas']]) < 6:
-                        self.update_output("It seems like you do not have enough colours to paint.<br>")
-                    else:
-                        self.game_state = 'workbench'
-                        self.workbench_step = 1  # Start the first step
-                        self.update_output("As you stand at the workbench, the equipment glints under the dim light, ready to begin the process that might undo the garden’s cruelty. "
-                                           "The recipe's first step is clear: to add the liquid base into the titrant.<br>"
-                                           "<br>The base must be selected carefully. What will you add?<br>")
-                        self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it.<br>")
-                        self.list_inventory()
-                    return
-                elif command == 'use':
-                    self.update_output("Invalid syntax. Use '<b>use workbench</b>' to interact with the workbench in the Lab.<br>")
-                    return
 
-            if command == 'use' and len(parts) > 1 and parts[1].lower() == 'potion':
+            # Validate 'use' command
+            if command == 'use' and len(parts) > 1 and parts[1].lower() == 'easel':
                 if self.current_location == 'purgatory':
-                    self.click_through_text(
-                        self.end_paragraphs,
-                        next_state='ended',
-                        on_complete=self.end_game_message
-                    )
+                    if len(self.inventory) == 6:
+                        self.click_through_text(
+                            self.end_paragraphs1,
+                            next_state='main',
+                            on_complete=lambda: self.show_undetailed_pdf_then_continue()
+                        )
+                    else:
+                        self.update_output("You need exactly 6 colors in your inventory to use the easel.<br>")
                 else:
-                    self.update_output("The potion is meant for Beatrice's body. Move to her location first.<br>")
-
+                    self.update_output("The easel is in purgatory. Please use command 'move to purgatory' first.<br>")
+                    
             # Handle 'help' command
             if command == 'help':
-                if self.game_state == 'workbench':
-                    self.update_output("You are using the workbench to create a potion. Follow the prompts to select items from your inventory.<br>")
-                    return
-
-                self.update_output('Welcome to Creepy Monk!<br><br>' +
+                self.update_output('Welcome to COLOURFUL WOMEN IN AMBROSIO’S LIFE!<br><br>' +
                             'Instructions:<br>' + 
                             'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to elvira\'<br>' +
                             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: <b>\'purgatory\'</b> for Purgatory, <b>\'elvira\'</b> for Elvira\'s Apartment,<br>' +
@@ -288,6 +302,8 @@ class AdventureGame(QMainWindow):
                             'Use command \'current location\' to print out the current location of the player<br>' +
                             'Use command \'grab\' followed by a reachable colour to grab the colour and add it to your inventory  (note, items are bolded)<br>' +
                             'Use command \'list items\' to print out a list of all items held in the inventory, and all colours available to grab<br>' +
+                            'Use command \'show\' followed by an item in your inventory name to view it<br>' +
+                            'Use command \'use easel\' while in purgatory to try painting<br>' +
                             'Use command \'help\' to print out these instructions once again<br><br>')
                 return
 
@@ -312,6 +328,9 @@ class AdventureGame(QMainWindow):
                     del self.location_items[self.current_location][item_name]
                     self.update_output(f"You grabbed {item_name}.<br>")
                     self.show_pdf(image_file)  # Automatically display the item after grabbing
+                    # Check if enough colours acquired
+                    if len(self.inventory) == 6:
+                        self.update_output("You now have 6 items in your inventory. Return to purgatory and investigate the painting easel.<br>")
                 elif any(i[0] == item_name for i in self.inventory):
                     self.update_output(f"{item_name} is already in your inventory!<br>")
                 else:
@@ -362,103 +381,11 @@ class AdventureGame(QMainWindow):
             elif command == 'move':
                 self.update_output(f"Invalid syntax. Use 'move to {location}'.<br>")
                 return
-            
-        if self.game_state == 'workbench':
+        
+        elif self.game_state == 'question_answer':
+            self.handle_question_answer_input(user_input)
 
-            if user_input.lower() == 'list items':
-                self.list_inventory()
-                return
-
-            if user_input.lower().startswith('show '):
-                item_name = user_input[5:].strip()  # Extract the item name after 'show '
-                for item, file_name in self.inventory:
-                    if item.lower() == item_name.lower():
-                        self.update_output(f"<span style='color:black;'>Showing {item}.</span><br>")
-                        self.show_pdf(file_name)
-                        return
-                self.update_output(f"<span style='color:black;'>You do not have {item_name} in your inventory.</span><br>")
-                return
-
-            if self.workbench_step == 1:
-                base = user_input.strip()
-                if any(item[0] == base and base not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
-                    self.selected_base = base
-                    self.used_items.append(base)  # Mark base as used
-                    self.update_output(f"You selected {base} as the base.<br>")
-                    self.workbench_step = 2
-                    self.update_output("The beaker sits above the flickering Bunsen burner, its glass shimmering faintly in the firelight. "
-                                    "This is the critical moment—the base is ready, but the potion requires the precise addition of ingredients to transform it into the antidote. "
-                                    "You must carefully add three special components, followed by three specific plants gathered from the garden.<br>"
-                                    "Precision is everything. The wrong ingredient will ruin the mixture, and failure comes at a cost. Focus, recall what you’ve learned, and proceed with care.<br>"
-                                    "Please enter the first ingredient:<br>")
-                    self.list_inventory()  # Show available items
-                else:
-                    self.update_output(f"{base} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
-                return
-
-            if self.workbench_step == 2:
-                ingredient1 = user_input.strip()
-                if any(item[0] == ingredient1 and ingredient1 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
-                    self.selected_ingredient1 = ingredient1
-                    self.used_items.append(ingredient1)  # Mark ingredient as used
-                    self.update_output(f"You added {ingredient1} to the potion.<br>")
-                    self.workbench_step = 3
-                    self.update_output("Please enter the second ingredient:<br>")
-                    self.list_inventory()  # Show available items
-                else:
-                    self.update_output(f"{ingredient1} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
-                return
-
-            if self.workbench_step == 3:
-                ingredient2 = user_input.strip()
-                if any(item[0] == ingredient2 and ingredient2 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
-                    self.selected_ingredient2 = ingredient2
-                    self.used_items.append(ingredient2)  # Mark ingredient as used
-                    self.update_output(f"You added {ingredient2} to the potion.<br>")
-                    self.workbench_step = 4
-                    self.update_output("Please enter the third ingredient:<br>")
-                    self.list_inventory()  # Show available items
-                else:
-                    self.update_output(f"{ingredient2} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show sonnets\'<br>")
-                return
-
-            if self.workbench_step == 4:
-                ingredient3 = user_input.strip()
-                if any(item[0] == ingredient3 and ingredient3 not in self.used_items and item[0] not in ['potion', 'sonnets', 'map'] for item in self.inventory):
-                    self.selected_ingredient3 = ingredient3
-                    self.used_items.append(ingredient3)  # Mark the ingredient as used
-
-                    # Check if the recipe is correct
-                    correct_base = "green tears"
-                    correct_ingredients = {"anemones", "pigweed", "moss"}
-
-                    # Verify the base and the selected ingredients
-                    if (self.selected_base == correct_base and
-                        {self.selected_ingredient1, self.selected_ingredient2, self.selected_ingredient3} == correct_ingredients):
-                        # Success case
-                        self.update_output("The potion is ready, its surface glowing faintly as though alive with hope—or perhaps something far more perilous. "
-                                        "In your hands lies the culmination of your efforts, the chance to undo the poison that claimed Beatrice’s life.<br>")
-                        self.inventory.append(("potion", get_resource_path("potion.pdf")))  # Add potion to inventory
-                        self.show_pdf("potion.pdf")  # Open the potion PDF
-                        self.update_output("You can now try using the potion on Beatrice's body. Please move to Beatrice's body.<br>")
-                    else:
-                        # Failure case
-                        self.update_output("The beaker begins to bubble uncontrollably, steam rising in angry hisses as the mixture turns an ominous, murky color. "
-                                        "Suddenly, with a deafening POP, the concoction explodes upward, splattering scalding liquid and noxious fumes into the air.<br>")
-                        self.update_output("Try again using different ingredients, or go out and search for more.<br>")
-                        self.update_output("You can try again by typing '<b>use workbench</b>', or go to a different location using a 'move to' command.<br>")
-
-                    # Reset workbench state after the attempt
-                    self.used_items = []  # Reset used items for the next session
-                    self.workbench_step = 0  # Reset step counter
-                    self.game_state = 'main'  # Return to the main game state
-                else:
-                    self.update_output(f"{ingredient3} is either not in your inventory or has already been used.<br>")
-                    self.update_output("You may use command 'list items' to list inventory or command 'show' followed by an item to view it. Hint, you may want to use \'show Sonnets\'<br>")
-                return
+        else: self.update_output("Invalid game state. Please restart the game.<br>")
 
     def list_inventory(self):
         available_items = [item[0] for item in self.inventory if item[0] not in self.used_items and item[0] not in ['potion', 'sonnets', 'map']]
@@ -483,39 +410,52 @@ class AdventureGame(QMainWindow):
         self.update_output(f"You have arrived at {full_location}.<br>")
 
         if location == 'purgatory':
-            self.click_through_text([
+            self.update_output(
             "The air was heavy and still, smothering all light. Beneath your feet lay soft, green grass, vibrant yet incongruous in the suffocating gloom. Beyond it, nothing remained—only "
             "endless darkness stretching into the void. A thick mist wrapped the world, cloaking everything. A single beam of pale light broke through, casting long, jagged shadows around "
             "you.The silence pressed heavily, a suffocating weight broken now and then by faint, ghostly murmurs that seemed to rise from unseen depths. The air tasted of despair and decay, "
             "each breath a struggle. Time and direction vanished in the fog.<br>"
-            ], next_state='main', on_complete=None)
-            if any(item[0] == 'potion' for item in self.inventory):
-                self.update_output("Use command 'use potion' to end game.<br>")
+            )
         
         elif location == 'elvira':
+            suppress_prompt = self.location_interaction_completed['elvira']
             self.click_through_text([
-            "You are transported to a small, modest bedroom—the sanctuary of Antonia’s innocence and Elvira’s protection. The faint scent of flowers mingles with the crisp, clean air that "
-            "flows through pale curtains swaying gently at the window. A soft glow from the candlestick on the wooden table flickers, casting warm light over the neatly made bed with its "
-            "pristine white sheets, where Antonia lies peacefully asleep. The faint creak of the floor beneath you and the fragile clink of the rosary add to the stillness. Yet, the sweetness "
-            "of the space is tainted by a heavy sadness, as if the room itself remembers the tragedy that will unfold.<br>",
+                "You are transported to a small, modest bedroom—the sanctuary of Antonia’s innocence and Elvira’s protection. The faint scent of flowers mingles with the crisp, clean air that "
+                "flows through pale curtains swaying gently at the window. A soft glow from the candlestick on the wooden table flickers, casting warm light over the neatly made bed with its "
+                "pristine white sheets, where Antonia lies peacefully asleep. The faint creak of the floor beneath you and the fragile clink of the rosary add to the stillness. Yet, the sweetness "
+                "of the space is tainted by a heavy sadness, as if the room itself remembers the tragedy that will unfold.<br>",
 
-            "<b>God:</b> This was a place of innocence, a refuge of love and devotion. Yet you, Ambrosio, turned it into a site of violence and betrayal. Look upon what was once whole, and see what you have destroyed.<br>",
+                "<b>God:</b> This was a place of innocence, a refuge of love and devotion. Yet you, Ambrosio, turned it into a site of violence and betrayal. Look upon what was once whole, and see what you have destroyed.<br>",
 
-            "The air thickens as the scene before you shifts. A memory begins to unfold, and you are forced to relive the moment of Elvira’s death. Her terrified voice fills the room as the events play out before your eyes:<br>",
+                "The air thickens as the scene before you shifts. A memory begins to unfold, and you are forced to relive the moment of Elvira’s death. Her terrified voice fills the room as the events play out before your eyes:<br>",
 
-            "“Terrified at the fury which flashed in his eyes, and at the tremendous threats which He uttered, Elvira sank upon her knees and besought his mercy in terms the most pathetic "
-            "and touching. Unmoved by her sorrow and finding his threats unavailing, the Barbarian resolved to silence her complaints forever. Rushing upon her, He clasped his hands round "
-            "her throat, and pressing it with his utmost strength, He persisted in his attempt till her voice was for ever silenced. Her lifeless and disfigured body fell motionless at his "
-            "feet. He gazed upon it with horror. A frightful blackness spread itself over her visage; her limbs moved no more; the blood was chilled in her veins, and her heart had forgotten to beat.”<br>"
-            "<i>(The Monk, Page 160)</i><br>",
+                "“Terrified at the fury which flashed in his eyes, and at the tremendous threats which He uttered, Elvira sank upon her knees and besought his mercy in terms the most pathetic "
+                "and touching. Unmoved by her sorrow and finding his threats unavailing, the Barbarian resolved to silence her complaints forever. Rushing upon her, He clasped his hands round "
+                "her throat, and pressing it with his utmost strength, He persisted in his attempt till her voice was for ever silenced. Her lifeless and disfigured body fell motionless at his "
+                "feet. He gazed upon it with horror. A frightful blackness spread itself over her visage; her limbs moved no more; the blood was chilled in her veins, and her heart had forgotten to beat.”<br>"
+                "<i>(The Monk, Page 160)</i><br>",
 
-            "The memory fades, and the room transforms. The bed is unmade, its sheets darkened by shadow. A shattered vase spills petals across the floor, symbols of innocence destroyed. "
-            "Elvira’s lifeless body lies before you, her face consumed by a 'frightful blackness.'<br>",
+                "The memory fades, and the room transforms. The bed is unmade, its sheets darkened by shadow. A shattered vase spills petals across the floor, symbols of innocence destroyed. "
+                "Elvira’s lifeless body lies before you, her face consumed by a 'frightful blackness.'<br>",
 
-            "<b>God:</b> Her face, marred by the blackness of death, reflects your betrayal and violence. This darkness is not only hers—it is the shadow of your soul. Look upon it and confront what you have done.<br>"
-        ], next_state='main', on_complete=None)
+                "<b>God:</b> Her face, marred by the blackness of death, reflects your betrayal and violence. This darkness is not only hers—it is the shadow of your soul. Look upon it and confront what you have done.<br>"
+            ], next_state='main', on_complete=lambda: self.start_question_for_location(
+                location=location,
+                intro="Which commandment did you break by taking her life?",
+                options=[
+                    "(a) You shall not steal.",
+                    "(b) You shall have no other gods before me.",
+                    "(c) You shall not murder."
+                ],
+                correct_answer='c',
+                outro=(
+                    "The room darkens further, and Elvira’s voice echoes, filled with sorrow:<br>"
+                    "“The <b>blackness</b> that mars my face is the mark of your betrayal. You extinguished my life, leaving only shadows in your wake. Carry this <b>blackness</b> with you—it is yours now.”<br>"
+                )
+            ), skip_final_prompt=suppress_prompt)
         
         elif location == 'matilda':
+            suppress_prompt = self.location_interaction_completed['matilda']
             self.click_through_text([
             "You enter the monastery’s library, where dim candlelight dances across towering shelves of ancient books. The air is thick with the weight of past sins, "
             "carrying the faint scent of incense mingled with a darker, sour trace of decay. At the center stands a grand desk, draped in a sable cloth embroidered "
@@ -549,9 +489,22 @@ class AdventureGame(QMainWindow):
 
             "<b>God:</b> You saw her golden beauty, her rosy cheeks, and her sable robe, and you chose them over your vows as a monk. You desired what was not yours to take, and in doing so, "
             "you broke My law. Tell me, Ambrosio: which commandment did you violate here?”<br>"
-        ], next_state='main', on_complete=None)
+        ], next_state='main', on_complete=lambda: self.start_question_for_location(
+                location=location,
+                intro="Which commandment did you break by desiring her beauty, her promises, and her power?",
+                options=[
+                    "(a) You shall not bear false witness.",
+                    "(b) You shall not covet.",
+                    "(c) You shall not steal."
+                ],
+                correct_answer='b',
+                outro=(
+                    "“You shall not covet. By longing for her promises of power, <b>golden</b> beauty, <b>rosy</b> cheeks, and <b>sable</b> robes you abandoned righteousness and gave yourself to pride and desire.”<br>"
+                )
+            ), skip_final_prompt=suppress_prompt)
         
         elif location == 'antonia':
+            suppress_prompt = self.location_interaction_completed['antonia']
             self.click_through_text([
                 "The vision sharpens, revealing the bustling interior of the monastery’s chapel. The faint murmur of prayers and rustling robes fills the air, mingling with the heavy scent of incense. "
                 "Among the congregation, Ambrosio’s gaze locks on Antonia. She stands beside her mother, her delicate figure framed by a flowing white gown fastened with a pale blue sash. Her golden ringlets "
@@ -584,11 +537,36 @@ class AdventureGame(QMainWindow):
 
                 "The vision lingers on Antonia’s lifeless form, her blood pooling on the cold stone floor, her once-white gown now soaked in red. The torchlight flickers as though struggling to endure the weight of the scene, "
                 "casting her face into shadow—a haunting reminder of innocence stolen and a soul betrayed.<br>"
-            ], next_state='main', on_complete=None)
+            ], next_state='main', on_complete=lambda: self.start_question_for_location(
+                location=location,
+                intro="Which commandment did you break by coveting Antonia’s purity and murdering her?",
+                options=[
+                    "(a) You shall not covet, and you shall not murder.",
+                    "(b) You shall not bear false witness, and you shall not steal.",
+                    "(c) Honor your father and mother."
+                ],
+                correct_answer='a',
+                outro=(
+                    "You shall not covet. By desiring what was not yours to take, you turned her innocence into your ruin.<br>"
+                    "The vision fades, leaving the tomb shrouded in shadow. The white</b> of Antonia’s gown glows faintly, a ghostly remnant of her purity, while the crimson of her blood spreads across the stone, vivid and inescapable.<br>"
+                    "Her voice echoes softly, filled with sorrow:<br>"
+                    "“<b>White</b> for my innocence, Ambrosio. <b>Red</b> for the pain you caused. These colors are yours now, a mark of the life you took and the purity you mercilessly coveted.”<br>"
+                )
+            ), skip_final_prompt=suppress_prompt)
+
+    def start_question_for_location(self, location, intro, options, correct_answer, outro):
+        """
+        Start the question-answer sequence for the given location only if it hasn't been completed.
+        """
+        if not self.location_interaction_completed[location]:
+            self.question_answer_state(intro, options, correct_answer, outro)
+        else:
+            # No action needed, as the click-through text has already been displayed
+            pass
 
     def start_main_game(self):
         # Transition to the main game loop
-        self.update_output('Welcome to Creepy Monk!<br><br>' +
+        self.update_output('Welcome to COLOURFUL WOMEN IN AMBROSIO’S LIFE!<br><br>' +
                             'Instructions:<br>' + 
                             'Use commmand \'move to\' followed by a reachable location to move there. Ex. \'move to elvira\'<br>' +
                             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid locations: <b>\'purgatory\'</b> for Purgatory, <b>\'elvira\'</b> for Elvira\'s Apartment,<br>' +
@@ -596,8 +574,9 @@ class AdventureGame(QMainWindow):
                             'Use command \'current location\' to print out the current location of the player<br>' +
                             'Use command \'grab\' followed by a reachable colour to grab the colour and add it to your inventory  (note, items are bolded)<br>' +
                             'Use command \'list items\' to print out a list of all items held in the inventory, and all colours available to grab<br>' +
+                            'Use command \'show\' followed by an item in your inventory name to view it<br>' +
+                            'Use command \'use easel\' while in purgatory to try painting<br>' +
                             'Use command \'help\' to print out these instructions once again<br><br>')
-        self.inventory.append(("empty canvas", get_resource_path("map.pdf")))
         self.enter_area('purgatory')  # Enter the initial location
 
     def show_pdf(self, pdf_path):
@@ -623,37 +602,47 @@ class AdventureGame(QMainWindow):
         # Default behavior for other key press events
         super().keyPressEvent(event)
 
-    def click_through_text(self, text_array, next_state='main', on_complete=None):
+    def click_through_text(self, text_array, next_state='main', on_complete=None, skip_final_prompt=False):
         """
         Initiates a click-through text sequence, allowing the user to progress through an array of strings.
-
-        :param text_array: List of strings to display sequentially.
-        :param next_state: The game state to switch to after the sequence ends (default is 'main').
-        :param on_complete: A callable function to execute after the sequence ends.
         """
         self.text_sequence = text_array  # Store the text sequence to display
         self.text_index = 0  # Start at the first text in the sequence
         self.next_state = next_state  # State to switch to after the sequence ends
         self.on_complete = on_complete  # Store the completion callback
+        self.skip_final_prompt = skip_final_prompt  # Whether to suppress the final prompt
 
         self.input_line.setEnabled(False)  # Disable input
         self.game_state = 'reading'  # Set game state to 'reading'
+        self.keypress_ready = False  # Disable keypress handling temporarily
 
-        # Display the first text and a prompt to continue
+        # Display the first piece of text
         self.update_output(self.text_sequence[self.text_index] + "<br>")
-        self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
+        # Display "Press any key" prompt if there are more items
+        if len(self.text_sequence) > 1 or not self.skip_final_prompt:
+            self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
 
+        # Re-enable keypress handling after a short delay
+        QTimer.singleShot(100, lambda: setattr(self, 'keypress_ready', True))
+        
     def handle_reading_keypress(self):
         """
         Handles keypress events during the 'reading' game state.
         Advances through the text sequence or ends the sequence if complete.
         """
+        if not self.keypress_ready:
+            return  # Ignore keypress if not ready
+
+        self.keypress_ready = False  # Disable keypress handling until the next text is displayed
         self.text_index += 1  # Move to the next text in the sequence
 
         if self.text_index < len(self.text_sequence):
             # Display the next text
             self.update_output(self.text_sequence[self.text_index] + "<br>")
-            self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
+            # Show the prompt only if it's not the last piece of text or skip_final_prompt is False
+            if self.text_index < len(self.text_sequence) - 1 or not self.skip_final_prompt:
+                self.update_output("<span style='color:gray;'>Press any key (except spacebar) to continue...</span><br>")
+            self.keypress_ready = True  # Re-enable keypress handling for the next item
         else:
             # End the sequence
             self.text_sequence = []  # Clear the text sequence
@@ -670,6 +659,91 @@ class AdventureGame(QMainWindow):
         self.update_output("The story has concluded. Thank you for playing my game! You can now read over the story, or exit the game.<br>")
         self.input_line.setEnabled(False)  # Disable input field
 
+    def question_answer_state(self, intro, options, correct_answer, outro):
+        """
+        Handles a question-answer interaction state.
+        :param intro: A string that introduces the question to the user.
+        :param options: A list of 3 strings representing the possible answers.
+        :param correct_answer: A character ('a', 'b', or 'c') that is the correct answer.
+        :param outro: A string to display once the correct answer is given.
+        """
+        # Store the parameters for use during the question/answer interaction
+        self.question_intro = intro
+        self.question_options = options
+        self.correct_answer = correct_answer.lower()
+        self.question_outro = outro
+
+        # Initialize the state and display the question
+        self.game_state = 'question_answer'
+        self.update_output(f"{self.question_intro}<br>")
+        for option in self.question_options:
+            self.update_output(f"{option}<br>")
+        self.update_output("<span style='color:gray;'>Enter 'a', 'b', or 'c' to answer.</span><br>")
+
+    def handle_question_answer_input(self, user_input):
+        """
+        Handles user input during the question-answer interaction state.
+        :param user_input: The input from the user.
+        """
+        user_answer = user_input.strip().lower()
+
+        # Check if the answer is correct
+        if user_answer == self.correct_answer:
+            self.update_output(f"{self.question_outro}<br>")
+            
+            # Mark the location as completed
+            for location, completed in self.location_interaction_completed.items():
+                if not completed and self.current_location == location:
+                    self.location_interaction_completed[location] = True
+                    break
+
+            # Return to the main state
+            self.game_state = 'main'
+        elif user_answer in ['a', 'b', 'c']:
+            # Incorrect answer, prompt the user to try again
+            self.update_output("Incorrect answer. Please try again. Enter 'a', 'b', or 'c'.<br>")
+        else:
+            # Invalid input
+            self.update_output("Invalid input. Please enter 'a', 'b', or 'c'.<br>")
+
+    def check_for_six_colors(self):
+        """
+        Check if the user has 6 colors in their inventory and return a boolean.
+        """
+        colors_in_inventory = [item for item, _ in self.inventory if item not in ['empty canvas', 'potion', 'sonnets', 'map']]
+        return len(colors_in_inventory) == 6
+
+    def post_purgatory_check(self):
+        """
+        Check for the painting prompt after the purgatory click-through sequence.
+        """
+        if self.check_for_six_colors():
+            self.update_output("You have gathered all six colors. Use command 'use easel' to paint and complete your journey.<br>")
+
+    def post_location_check(self, suppress_prompt):
+        """
+        Check for the "head to purgatory" prompt after other location click-through sequences.
+        """
+        if self.check_for_six_colors() and not suppress_prompt:
+            self.update_output("You have gathered all six colors. Head to Purgatory and use the easel to paint.<br>")
+
+    def show_undetailed_pdf_then_continue(self):
+        """Show the undetailed PDF and start the next text sequence."""
+        self.show_pdf("undetailed_full.pdf")
+        self.click_through_text(
+            self.end_paragraphs2,
+            next_state='main',
+            on_complete=lambda: self.show_full_pdf_then_continue()
+        )
+
+    def show_full_pdf_then_continue(self):
+        """Show the full PDF and start the final text sequence."""
+        self.show_pdf("full_w_poem.pdf")
+        self.click_through_text(
+            self.final_text,
+            next_state='ended',
+            on_complete=self.end_game_message
+        )
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
